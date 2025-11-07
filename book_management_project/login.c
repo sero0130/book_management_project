@@ -2,4 +2,4 @@
 #include <stdio.h>
 #include "login.h"
 
-//로그인 관련 함수 넣는 곳
+//로그인 관련 함수

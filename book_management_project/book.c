@@ -2,4 +2,4 @@
 #include <stdio.h>
 #include "book.h"
 
-//책 관련 함수 넣는 곳
+//책 관련 함수

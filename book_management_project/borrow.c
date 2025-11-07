@@ -2,6 +2,4 @@
 #include <stdio.h>
 #include "borrow.h"
 
-/*
-* 대여 관련 함수 넣는곳
-*/
+//대여 관련 함수
