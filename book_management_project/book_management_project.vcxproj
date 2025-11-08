@@ -123,15 +123,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="assistant.c" />
     <ClCompile Include="book.c" />
     <ClCompile Include="borrow.c" />
+    <ClCompile Include="color.c" />
     <ClCompile Include="login.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="account.h" />
+    <ClInclude Include="assistant.h" />
     <ClInclude Include="book.h" />
     <ClInclude Include="borrow.h" />
+    <ClInclude Include="color.h" />
+    <ClInclude Include="database.h" />
     <ClInclude Include="login.h" />
+    <ClInclude Include="structs.h" />
+    <ClInclude Include="ui.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
