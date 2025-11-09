@@ -1,5 +1,163 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
 #include "login.h"
+#include "structs.h"
+#define MEMBER_NUMBER 3
+#define WRONGCOUNT_FAIL 10
 
-//ë¡œê·¸ì¸ ê´€ë ¨ í•¨ìˆ˜
+//	·Î±×ÀÎ °ü·Ã ÇÔ¼ö
+
+
+
+//	testlogin Å×½ºÆ®¿ë
+int main()
+{
+
+	// ÇÔ¼ö Ãâ·Â Å×½ºÆ® ¿ë
+	int result = testlogin();
+
+	if (result == ACCOUNT_TYPE_ADMIN)
+	{
+		printf("[½Ã½ºÅÛ Á¢±Ù ±ÇÇÑ: °ü¸®ÀÚ ¸ğµå]\n");
+	}
+
+	else if (result == ACCOUNT_TYPE_USER)
+	{
+		printf("[½Ã½ºÅÛ Á¢±Ù ±ÇÇÑ: »ç¿ëÀÚ ¸ğµå]\n");
+	}
+
+	else if (result == -1)
+	{
+		printf("[³Ê¹« ¸¹Àº ·Î±×ÀÎ ½ÇÆĞ·Î Á¢¼Ó Â÷´Ü µÇ¾ú½À´Ï´Ù.]\n");
+	}
+
+	else
+	{
+		printf("\n[UNKNOWN ERRER !!]\n");
+	}
+
+	return 0;
+}
+
+
+//	·Î±×ÀÎ ÇÔ¼ö
+int testlogin(void)
+{
+
+	//	º¸¾ÈÄÚµå »ı¼º¿ë ÃÊ±âÈ­
+	srand((unsigned int)time(NULL));
+
+
+	//	ÀÓ½Ã ·Î±×ÀÎ Á¤º¸
+	LOGIN logininfo[MEMBER_NUMBER] =
+	{
+		{ACCOUNT_TYPE_ADMIN, "admin", "adminpass"},
+		{ACCOUNT_TYPE_ADMIN, "9999", "99999999"},
+		{ACCOUNT_TYPE_USER, "user1", "12345678"}
+	};
+
+	//	id¿Í pw ÀúÀå º¯¼ö
+	char id[MAX_USER_ID_LENGTH];
+	char pw[MAX_USER_PASSWORD_LENGHTH];
+
+	//	Àß¸øµÈ ·Î±×ÀÎ ½Ãµµ ÀúÀå 
+	int wrongcount = 0;
+
+
+	//	¹«ÇÑ·çÇÁ¸¦ µ¹¸é¼­ ¾ÆÀÌµğ¿Í ºñ¹Ğ¹øÈ£¸¦ ÀÔ·Â¹Ş°í È®ÀÎ
+	while (1)
+	{
+
+		if (wrongcount < 3)
+		{
+			//	¾ÆÀÌµğ¿Í ºñ¹Ğ¹øÈ£ ÀÔ·Â
+			printf("\n¾ÆÀÌµğ¿Í ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇÏ¼¼¿ä.\n");
+
+			printf("ID: ");
+			scanf("%28s", id);
+
+			printf("Password: ");
+			scanf("%48s", pw);
+		}
+		else
+		{
+			// ÀÏÁ¤ ½Ãµµ ÃÊ°ú
+			if (WRONGCOUNT_FAIL <= wrongcount)
+			{
+				printf("\n³Ê¹« ¸¹Àº Àß¸øµÈ ·Î±×ÀÎ ½ÃµµÀÔ´Ï´Ù.\nÇÁ·Î±×·¥À» Á¾·áÇÕ´Ï´Ù.\n");
+				return -1;
+			}
+
+
+			//	·£´ı ³­¼ö º¸¾È ÄÚµå »ı¼º
+			int secret_code = rand() % 10000;
+
+			//	ÄÚµå ÀÔ·Â º¯¼ö
+			int input_code = 0;
+
+			printf("\n--%dÈ¸ ÀÌ»ó ·Î±×ÀÎÀ» ½ÇÆĞÇÏ¼Ì½À´Ï´Ù.--\n10È¸ ÀÌ»ó ·Î±×ÀÎ ½ÇÆĞ½Ã ·Î±×ÀÎÀÌ ±İÁöµË´Ï´Ù.\n", wrongcount);
+
+			printf("ID: ");
+			scanf("%28s", id);
+
+			printf("Password: ");
+			scanf("%48s", pw);
+
+			// º¸¾È ÄÚµå Á¦½Ã ¹× ÀÔ·Â
+			printf("´ÙÀ½ º¸¾È ÄÚµå¸¦ ÀÔ·ÂÇÏ¼¼¿ä: %04d\n", secret_code);
+			printf("º¸¾È ÄÚµå ³×ÀÚ¸® ÀÔ·Â: ");
+			scanf("%4d", &input_code);
+
+
+			// º¸¾È ÄÚµå °Ë»ç ºÒÀÏÄ¡
+			if (input_code != secret_code)
+			{
+
+				printf("\nº¸¾È ÄÚµå°¡ ÀÏÄ¡ÇÏÁö ¾Ê½À´Ï´Ù. ´Ù½Ã ½ÃµµÇÏ¼¼¿ä.\n\n");
+				wrongcount++;
+				continue;
+
+			}
+
+			// º¸¾È ÄÚµå °Ë»ç ÀÏÄ¡
+			else
+			{
+				printf("\nº¸¾È ÄÚµå ÀÏÄ¡.\n");
+			}
+
+		}
+
+		//	¹İº¹¹®À» ÅëÇÑ ºñ±³
+		for (int i = 0; i < MEMBER_NUMBER; i++)
+		{
+
+			//	¾ÆÀÌµğ, ºñ¹Ğ¹øÈ£ È®ÀÎ
+			if (strcmp(id, logininfo[i].loginID) == 0 && strcmp(pw, logininfo[i].loginPW) == 0)
+			{
+				//	°ü¸®ÀÚ
+				if (logininfo[i].accountType == ACCOUNT_TYPE_ADMIN)
+				{
+					printf("\n°ü¸®ÀÚ %s´Ô È¯¿µÇÕ´Ï´Ù.\n", logininfo[i].loginID);
+					wrongcount = 0;
+					return logininfo[i].accountType;
+				}
+
+				//	»ç¿ëÀÚ
+				else
+				{
+					printf("\n»ç¿ëÀÚ %s´Ô È¯¿µÇÕ´Ï´Ù.\n", logininfo[i].loginID);
+					wrongcount = 0;
+					return logininfo[i].accountType;
+				}
+			}
+
+		}
+
+		//	·Î±×ÀÎ ½ÇÆĞ
+		printf("·Î±×ÀÎ ½ÇÆĞ : ¾ÆÀÌµğ ¶Ç´Â ºñ¹Ğ¹øÈ£°¡ Àß¸øµÇ¾ú½À´Ï´Ù.\n\n");
+		wrongcount++;
+	}
+}
