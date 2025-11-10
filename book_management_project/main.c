@@ -9,11 +9,10 @@
 #include <string.h>
 #include <time.h>
 #include <windows.h>
-/*
+
 int main(void) 
 {
 	DisplayMain();
 	//DisplayLogin();
 	return 0;
 }
-*/

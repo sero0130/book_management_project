@@ -11,7 +11,7 @@
 //	로그인 관련 함수
 
 
-
+/*
 //	testlogin 테스트용
 int main()
 {
@@ -41,7 +41,7 @@ int main()
 
 	return 0;
 }
-
+*/
 
 //	로그인 함수
 int testlogin(void)
