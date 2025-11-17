@@ -19,7 +19,8 @@ enum {
 	MAX_USER_ID_LENGTH = 30,
 	MAX_USER_NAME_LENGTH = 50,
 	MAX_USER_PASSWORD_LENGHTH = 50,
-	MAX_BORROWED_BOOKS = 3
+	MAX_BORROWED_BOOKS = 3,
+	MAX_PHONE_LENGTH = 30
 };
 
 /*
@@ -87,9 +88,9 @@ typedef struct book {
 
 typedef struct user{																				
 	char userName[MAX_USER_NAME_LENGTH];										//사용자 이름
+	char phoneNum[MAX_PHONE_LENGTH];
 	ACCOUNTTYPE accountType;													//사용자 타입 ADMIN, USER 중 하나
 	uint8_t borrowedBookCount;													//현재 대여한 책 권 수
-	uint16_t LateDay;															//책 연체 누적 일 수
 	BookId borrowedBooks[MAX_BORROWED_BOOKS];									//현재 대여한 책 ID 목록
 }USER;
 
@@ -100,8 +101,8 @@ typedef struct login {
 }LOGIN;
 
 typedef struct borrow {
-	BookId bookID;																		//책 고유 아이디
-	UserId userID;																		//사용자 아이디
+	BOOK bookID;																		//책 고유 아이디
+	LOGIN userID;																		//사용자 아이디
 	Date borrowDate;																	//책 대여 날짜
 	Date dueDate;																		//책 반납 마감 날짜
 	Date returnDate;																	//책 반납 예정 날짜
@@ -109,8 +110,8 @@ typedef struct borrow {
 }BORROW;
 
 typedef struct request {
-	BookId bookID;																		//책 고유 아이디
-	UserId userID;																		//사용자 아이디
+	BOOK bookID;																		//책 고유 아이디
+	LOGIN userID;																		//사용자 아이디
 	booltype extendRequest;																//대여 일 수 연장 요청 TRUE / FALSE 로 구분해 요청 확인
 	booltype clearRequest;																//연체 해제 요청 TRUE / FALSE 로 구분해 요청 확인
 }REQUEST;

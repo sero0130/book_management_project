@@ -127,6 +127,7 @@
     <ClCompile Include="book.c" />
     <ClCompile Include="borrow.c" />
     <ClCompile Include="color.c" />
+    <ClCompile Include="database.c" />
     <ClCompile Include="login.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="main.c">
