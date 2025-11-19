@@ -1,5 +1,5 @@
 #include "database.h"
-#include 
+#include "structs.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -66,6 +66,7 @@ DBERROR BookDatabaseSave(BOOK book[],int lastnum)
 	fclose(bookfp);
 	return DB_SUCCESS;
 }
+
 
 /*
 * ÇÔ¼ö¸í : borrowDataSave()
