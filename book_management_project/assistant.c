@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <Windows.h>
 
+//5
 /*
 * 콘솔 화면 지우기 함수
 * 매개변수 : 없음
