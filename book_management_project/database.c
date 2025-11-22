@@ -5,6 +5,102 @@
 
 //데이터 베이스 관련 함수 작성
 
+USER* users = NULL;
+LOGIN* logins = NULL;
+int userCount = 0;
+
+BOOK* books = NULL;
+int bookCount = 0;
+
+BORROW* borrows = NULL;
+int borrowCount = 0;
+
+REQUEST* requests = NULL;
+
+
+/*
+* 함수명 : InitDatabase()
+* 기능 : 데이터베이스 초기화(동적 메모리 할당)
+* 매개변수 : 없음
+* 반환값 : 없음
+*/
+
+void InitDatabase(void)
+{
+	int Ucount = countlines("user.txt");
+	int Bcount = countlines("book.txt");
+	int Brcount = countlines("borrow.txt");
+	
+	//user 동적 메모리 할당
+	users = (USER*)malloc(sizeof(USER) * Ucount);
+	if (users == NULL)
+	{
+		return;
+	}
+
+	//login 동적 메모리 할당
+	logins = (LOGIN*)malloc(sizeof(LOGIN) * Ucount);
+	if (logins == NULL)
+	{
+		free(users);
+		return;
+	}
+
+	//book 동적 메모리 할당
+	books = (BOOK*)malloc(sizeof(BOOK) * Bcount);
+	if (books == NULL)
+	{
+		free(users);
+		free(logins);
+		return;
+	}
+
+	//borrow 동적 메모리 할당
+	borrows = (BORROW*)malloc(sizeof(BORROW) * Brcount);
+	if (borrows == NULL)
+	{
+		free(users);
+		free(logins);
+		free(books);
+		return;
+	}
+	userCount = Ucount;				//전역 변수에 개수 저장
+	bookCount = Bcount;
+	borrowCount = Brcount;
+
+}
+
+/*
+* 함수명 : FreeDatabase()
+* 기능 : 데이터베이스 해제(동적 메모리 해제)
+* 매개변수 : 없음
+* 반환값 : 없음
+*/
+
+void FreeDatabase(void)	//데이터베이스 해제(동적 메모리 해제)
+{
+	if (users != NULL)
+	{
+		free(users);
+		users = NULL;
+	}
+	if (logins != NULL)
+	{
+		free(logins);
+		logins = NULL;
+	}
+	if (books != NULL)
+	{
+		free(books);
+		books = NULL;
+	}
+	if (borrows != NULL)
+	{
+		free(borrows);
+		borrows = NULL;
+	}
+}
+
 /*
 * 함수명 : UserDatabaseSave()
 * 기능 : user login 구조체 배열 전체 user.txt 파일에 저장
@@ -12,9 +108,11 @@
 * 반환 값 : DBERROR
 */
 
-//user.txt 형식 : accountType | ID | PW | name | phone | borrowedBookCount | borrowedBook1 | borrowedBook2 | borrowedBook3
-DBERROR UserDatabaseSave(USER user[],LOGIN login[], int lastnum)
+//user.txt 형식 : accountType|ID|PW|name|phone|borrowedBookCount|borrowedBook1|borrowedBook2|borrowedBook3
+DBERROR UserDatabaseSave(int lastnum)
 {
+	
+
 	FILE* userfp = fopen("user.txt", "w");
 	if (userfp == NULL)
 	{
@@ -24,21 +122,21 @@ DBERROR UserDatabaseSave(USER user[],LOGIN login[], int lastnum)
 	for (int i = 0; i <= lastnum; i++)
 	{
 		fprintf(userfp, "%d|%s|%s|%s|%s|%u",
-			(int)user[i].accountType,
-			login[i].loginID,
-			login[i].loginPW,
-			user[i].userName,
-			user[i].phoneNum,
-			user[i].borrowedBookCount
+			(int)users[i].accountType,
+			logins[i].loginID,
+			logins[i].loginPW,
+			users[i].userName,
+			users[i].phoneNum,
+			users[i].borrowedBookCount
 		);
 
 		//최대 3권
 		for (int j = 0; j < MAX_BORROWED_BOOKS; j++)
 		{
-			fprintf(userfp, "|%s", user[i].borrowedBooks[j]);
+			fprintf(userfp, "|%s", users[i].borrowedBooks[j]);
 		}
 
-		fprintf("userfp", "\n");
+		fprintf(userfp, "\n");
 	}
 
 	fclose(userfp);
@@ -52,7 +150,7 @@ DBERROR UserDatabaseSave(USER user[],LOGIN login[], int lastnum)
 * 반환 값 : DBERROR
 */
 
-DBERROR UserDatabaseAppend(const USER* user, const LOGIN* login)
+DBERROR UserDatabaseAppend()
 {
 	FILE* userfp = fopen("user.txt", "a");
 	if (userfp == NULL)
@@ -61,17 +159,17 @@ DBERROR UserDatabaseAppend(const USER* user, const LOGIN* login)
 	}
 
 	fprintf(userfp, "%d|%s|%s|%s|%s|%u",
-		(int)user->accountType,
-		login->loginID,
-		login->loginPW,
-		user->userName,
-		user->phoneNum,
-		user->borrowedBookCount
+		(int)users->accountType,
+		logins->loginID,
+		logins->loginPW,
+		users->userName,
+		users->phoneNum,
+		users->borrowedBookCount
 	);
 
 	for(int j = 0; j < MAX_BORROWED_BOOKS; j++)
 	{
-		fprintf(userfp, "|%s", user->borrowedBooks[j]);
+		fprintf(userfp, "|%s", users->borrowedBooks[j]);
 	}
 
 	fprintf(userfp, "\n");
@@ -86,7 +184,7 @@ DBERROR UserDatabaseAppend(const USER* user, const LOGIN* login)
 * 반환 값 : DBERROR
 */
 
-DBERROR UserDatabaseLoad(USER user[], LOGIN login[], int max, int* count)
+DBERROR UserDatabaseLoad(int max, int* count)	//max에 userCount 넣어서 호출
 {
 	FILE* userfp = fopen("user.txt", "r");
 	if (userfp == NULL)
@@ -95,8 +193,8 @@ DBERROR UserDatabaseLoad(USER user[], LOGIN login[], int max, int* count)
 		return DB_FILE_NOT_FOUND;
 	}
 
-	char line[1024];
-	int idx = 0;
+	char line[512];		//한 줄을 저장할 버퍼
+	int idx = 0;			//현재 인덱스
 
 	while (idx < max && fgets(line, sizeof(line), userfp) != NULL)
 	{
@@ -119,35 +217,35 @@ DBERROR UserDatabaseLoad(USER user[], LOGIN login[], int max, int* count)
 			switch (field)
 			{
 			case 0: //accountType
-				login[idx].accountType = (ACCOUNTTYPE)atoi(token);
-				user[idx].accountType = login[idx].accountType;
+				logins[idx].accountType = (ACCOUNTTYPE)atoi(token);
+				users[idx].accountType = logins[idx].accountType;
 				break;
 			case 1: //loginID
-				strncpy(login[idx].loginID, token, MAX_USER_ID_LENGTH);
-				login[idx].loginID[MAX_USER_ID_LENGTH - 1] = '\0';
+				strncpy(logins[idx].loginID, token, MAX_USER_ID_LENGTH);
+				logins[idx].loginID[MAX_USER_ID_LENGTH - 1] = '\0';
 				break;
 			case 2: //loginPW
-				strncpy(login[idx].loginPW, token, MAX_USER_PASSWORD_LENGHTH);
-				login[idx].loginPW[MAX_USER_PASSWORD_LENGHTH - 1] = '\0';
+				strncpy(logins[idx].loginPW, token, MAX_USER_PASSWORD_LENGHTH);
+				logins[idx].loginPW[MAX_USER_PASSWORD_LENGHTH - 1] = '\0';
 				break;
 			case 3: //userName
-				strncpy(user[idx].userName, token, MAX_USER_NAME_LENGTH);
-				user[idx].userName[MAX_USER_NAME_LENGTH - 1] = '\0';
+				strncpy(users[idx].userName, token, MAX_USER_NAME_LENGTH);
+				users[idx].userName[MAX_USER_NAME_LENGTH - 1] = '\0';
 				break;
 			case 4: //phoneNum
-				strncpy(user[idx].phoneNum, token, MAX_PHONE_LENGTH);
-				user[idx].phoneNum[MAX_PHONE_LENGTH - 1] = '\0';
+				strncpy(users[idx].phoneNum, token, MAX_PHONE_LENGTH);
+				users[idx].phoneNum[MAX_PHONE_LENGTH - 1] = '\0';
 				break;
 			case 5: //borrowedBookCount
-				user[idx].borrowedBookCount = (uint8_t)atoi(token);
+				users[idx].borrowedBookCount = (uint8_t)atoi(token);
 				break;
 			default: //borrowedBooks
 				{
 					int bookIndex = field - 6;
 					if (0 <= bookIndex && bookIndex < MAX_BORROWED_BOOKS)
 					{
-						strncpy(user[idx].borrowedBooks[bookIndex], token, MAX_BOOK_ID_LENGTH);
-						user[idx].borrowedBooks[bookIndex][MAX_BOOK_ID_LENGTH - 1] = '\0';
+						strncpy(users[idx].borrowedBooks[bookIndex], token, MAX_BOOK_ID_LENGTH);
+						users[idx].borrowedBooks[bookIndex][MAX_BOOK_ID_LENGTH - 1] = '\0';
 					}
 					break;
 				}
@@ -167,12 +265,12 @@ DBERROR UserDatabaseLoad(USER user[], LOGIN login[], int max, int* count)
 
 /*
 * 함수명 : BookDatabaseSave()
-* 기능 : book.txt에 저장하는 함수
+* 기능 : book.txt에 구조체 전체를 저장하는 함수
 * 매개변수 : book 구조체 배열, 배열 마지막 인덱스
 * 반환값 : 정수값
 */
 
-//book.txt 형식 : bookID | bookName | writer | translator | bookStatus | maker
+//book.txt 형식 : bookID|bookName|writer|translator|bookStatus|maker
 DBERROR BookDatabaseSave(BOOK book[],int lastnum)
 {
 	FILE* bookfp = fopen("book.txt","w");
@@ -181,18 +279,17 @@ DBERROR BookDatabaseSave(BOOK book[],int lastnum)
 		return DB_FILE_NOT_FOUND;
 	}
 
-	//파일 커서 옮기기
-	fseek(bookfp, 0, SEEK_END);
-
-	fprintf("%s | %s | %s | %s | %s | %s | %s\n",
-		book[lastnum].bookID,
-		book[lastnum].bookName,
-		book[lastnum].writer,
-		book[lastnum].translator,
-		book[lastnum].bookStatus,
-		book[lastnum].maker);
-
-	printf("책 추가 완료.");
+	for(int i = 0; i <= lastnum; i++)
+	{
+		fprintf(bookfp,"%s|%s|%s|%s|%d|%s\n",
+			books[i].bookID,
+			books[i].bookName,
+			books[i].writer,
+			books[i].translator,
+			books[i].bookStatus,
+			books[i].maker);
+	}
+	
 	fclose(bookfp);
 	return DB_SUCCESS;
 }
@@ -205,6 +302,43 @@ DBERROR BookDatabaseSave(BOOK book[],int lastnum)
 * 반환값 : 정수값
 */
 //대출 기록은 제대로 구조를 짜지 못해 여러분께서 수정해주시면 감사하겠습니다.^^;
-//borrow.txt 형식 : bookID | userID | borrowY | borrowM | borrowD | dueY | dueM | dueD | returnY | returnM | returnD | overdueDay
+//borrow.txt 형식 : bookID|userID|borrowY|borrowM|borrowD|returnY|returnM|returnD|overdueDay
 
 
+
+
+
+
+
+
+
+
+
+
+
+/*
+* 함수명 : countlines()
+* 기능 : 파일에서 구조체 개수를 세는 함수
+* 매개변수 : 파일이름
+* 반환값 : 정수값
+*/
+
+int countlines(const char* filename)
+{
+	FILE* fp = fopen(filename, "r");	//파일 읽기 모드로 열기
+	if (fp == NULL)
+	{
+		return -1;
+	}
+
+	int count = 0;						//줄 개수를 세기 위한 변수
+	char buffer[512];					//한 줄을 저장할 버퍼
+		
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) //한 줄씩 읽어 줄 개수를 count에 저장
+	{
+		count++;
+	}
+
+	fclose(fp);
+	return count;										//파일 닫기 후 줄 개수 반환
+}

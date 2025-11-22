@@ -1,5 +1,6 @@
 #include "structs.h"
 #include "assistant.h"
+#include "database.h"
 #include "ui.h"
 #include "menu.h"
 #include "color.h"
@@ -12,6 +13,7 @@
 
 int main(void) 
 {
+
 	DisplayMain();
 	//DisplayLogin();
 	return 0;

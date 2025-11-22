@@ -136,7 +136,6 @@
     <ClCompile Include="ui.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="account.h" />
     <ClInclude Include="assistant.h" />
     <ClInclude Include="book.h" />
     <ClInclude Include="borrow.h" />

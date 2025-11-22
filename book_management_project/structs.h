@@ -113,13 +113,29 @@ typedef struct request {
 	BOOK bookID;																		//책 고유 아이디
 	LOGIN userID;																		//사용자 아이디
 	booltype extendRequest;																//대여 일 수 연장 요청 TRUE / FALSE 로 구분해 요청 확인
-	booltype clearRequest;																//연체 해제 요청 TRUE / FALSE 로 구분해 요청 확인
 }REQUEST;
+
+/*
+* DB extern 선언
+*/
+
+extern USER* users;
+extern LOGIN* logins;
+extern int userCount;
+
+extern BOOK* books;
+extern int bookCount;
+
+extern BORROW* borrows;
+extern int borrowCount;
+
+extern REQUEST* requests;
 
 /*
 * 날짜 구조체 유틸리티 함수 (빈 날짜 확인)
 * 반환값 : 날짜가 비어있다면 true, 아니면 false
 */
+
 static inline bool date_is_null(Date d) {
 	return d.year == 0 || d.month == 0 || d.day == 0;
 }
