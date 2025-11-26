@@ -2,6 +2,7 @@
 #include "structs.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 //데이터 베이스 관련 함수 작성
 
