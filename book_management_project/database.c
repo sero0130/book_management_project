@@ -105,7 +105,7 @@ void FreeDatabase(void)	//데이터베이스 해제(동적 메모리 해제)
 /*
 * 함수명 : UserDatabaseSave()
 * 기능 : user login 구조체 배열 전체 user.txt 파일에 저장
-* 매개변수 : 사용자 구조체 배열, 로그인 구조체 배열, 배열의 마지막 인덱스
+* 매개변수 : 배열의 마지막 인덱스
 * 반환 값 : DBERROR
 */
 
@@ -147,7 +147,7 @@ DBERROR UserDatabaseSave(int lastnum)
 /*
 * 함수명 : UserDatabaseAppend()
 * 기능 : user.txt에 사용자 한명 추가
-* 매개변수 : 사용자 구조체 배열, 로그인 구조체 배열, 배열의 마지막 인덱스
+* 매개변수 : 배열의 마지막 인덱스
 * 반환 값 : DBERROR
 */
 
@@ -181,7 +181,7 @@ DBERROR UserDatabaseAppend()
 /*
 * 함수명 : UserDatabaseLoad()
 * 기능 : user login 구조체 배열 전체 user.txt에서 불러오기
-* 매개변수 : 사용자 구조체 배열, 로그인 구조체 배열, max, count
+* 매개변수 : max, count
 * 반환 값 : DBERROR
 */
 
@@ -272,7 +272,7 @@ DBERROR UserDatabaseLoad(int max, int* count)	//max에 userCount 넣어서 호출
 */
 
 //book.txt 형식 : bookID|bookName|writer|translator|bookStatus|maker
-DBERROR BookDatabaseSave(BOOK book[],int lastnum)
+DBERROR BookDatabaseSave(int lastnum)
 {
 	FILE* bookfp = fopen("book.txt","w");
 	if (bookfp == NULL)
@@ -295,6 +295,104 @@ DBERROR BookDatabaseSave(BOOK book[],int lastnum)
 	return DB_SUCCESS;
 }
 
+/*
+* 함수명 : BookDatabaseLoad()
+* 기능 : book.txt에서 구조체 전체를 불러오는 함수
+* 매개변수 : 배열 최대 크기, 불러온 개수 포인터
+* 반환값 : 정수값
+*/
+DBERROR BookDatabaseLoad(int max, int* count) //max에 bookCount 넣어서 호출
+{
+	FILE* bookfp = fopen("book.txt", "r");
+	if (bookfp == NULL)
+	{
+		*count = 0;
+		return DB_FILE_NOT_FOUND;
+	}
+	char line[512];			//한 줄을 저장할 버퍼
+	int idx = 0;			//현재 인덱스
+
+	while (idx < max && fgets(line, sizeof(line), bookfp) != NULL)
+	{
+		//줄 끝 제거
+		line[strcspn(line, "\r\n")] = '\0';
+
+		//파싱
+		char* token;
+		int field = 0;
+
+		//토큰화
+		token = strtok(line, "|");
+
+		while (token != NULL)
+		{
+			while (*token == ' ') token++; //앞 공백 제거
+			char* end = token + strlen(token) - 1;
+			while (end > token && (*end == ' ')) { *end = '\0'; end--; } //뒤 공백 제거
+			switch (field)
+			{
+			case 0: //bookID
+				strncpy(books[idx].bookID, token, MAX_BOOK_ID_LENGTH);
+				books[idx].bookID[MAX_BOOK_ID_LENGTH - 1] = '\0';
+				break;
+			case 1: //bookName
+				strncpy(books[idx].bookName, token, MAX_BOOK_NAME_LENGTH);
+				books[idx].bookName[MAX_BOOK_NAME_LENGTH - 1] = '\0';
+				break;
+			case 2: //writer
+				strncpy(books[idx].writer, token, MAX_WRITER_LENGTH);
+				books[idx].writer[MAX_WRITER_LENGTH - 1] = '\0';
+				break;
+			case 3: //translator
+				strncpy(books[idx].translator, token, MAX_TRANSLATOR_LENGTH);
+				books[idx].translator[MAX_TRANSLATOR_LENGTH - 1] = '\0';
+				break;
+			case 4: //bookStatus
+				books[idx].bookStatus = (BOOKSTATUS)atoi(token);
+				break;
+			case 5: //maker
+				strncpy(books[idx].maker, token, MAX_MAKER_LENGTH);
+				books[idx].maker[MAX_MAKER_LENGTH - 1] = '\0';
+				break;
+			}
+			field++;
+			token = strtok(NULL, "|");
+		}
+
+		idx++;
+	}
+	fclose(bookfp);
+	*count = idx;
+	return DB_SUCCESS;
+}
+
+/*
+* 함수명 : BookDatabaseAppend()
+* 기능 : book.txt에 책 한권 추가하는 함수
+* 매개변수 : 없음
+* 반환값 : 정수값
+*/
+DBERROR BookDatabaseAppend()
+{
+	FILE* bookfp = fopen("book.txt", "a");
+	if (bookfp == NULL)
+	{
+		return DB_FILE_NOT_FOUND;
+	}
+
+	fprintf(bookfp, "%s|%s|%s|%s|%d|%s\n",
+		books->bookID,
+		books->bookName,
+		books->writer,
+		books->translator,
+		books->bookStatus,
+		books->maker);
+
+
+	fclose(bookfp);
+	return DB_SUCCESS;
+}
+
 
 /*
 * 함수명 : borrowDataSave()
@@ -305,17 +403,131 @@ DBERROR BookDatabaseSave(BOOK book[],int lastnum)
 //대출 기록은 제대로 구조를 짜지 못해 여러분께서 수정해주시면 감사하겠습니다.^^;
 //borrow.txt 형식 : bookID|userID|borrowY|borrowM|borrowD|returnY|returnM|returnD|overdueDay
 
+DBERROR BorrowDatabaseSave(int lastnum)
+{
+	FILE* borrowfp = fopen("borrow.txt", "w");
+	if (borrowfp == NULL)
+	{
+		return DB_FILE_NOT_FOUND;
+	}
+	for (int i = 0; i <= lastnum; i++)
+	{
+		fprintf(borrowfp, "%s|%s|%u|%u|%u|%u|%u|%u|%u\n",
+			borrows[i].bookID.bookID,
+			borrows[i].userID.loginID,
+			borrows[i].borrowDate.year,
+			borrows[i].borrowDate.month,
+			borrows[i].borrowDate.day,
+			borrows[i].returnDate.year,
+			borrows[i].returnDate.month,
+			borrows[i].returnDate.day,
+			borrows[i].overdueDay
+		);
+	}
+	fclose(borrowfp);
+	return DB_SUCCESS;
+}
 
+/*
+* 함수명 : borrowDataLoad()
+* 기능 : 대여 불러오기 함수
+* 매개변수 : 배열 최대 크기, 불러온 개수 포인터
+* 반환값 : 정수값
+*/
 
+DBERROR BorrowDatabaseLoad(int max, int* count) //max에 borrowCount 넣어서 호출
+{
+	FILE* borrowfp = fopen("borrow.txt", "r");
+	if (borrowfp == NULL)
+	{
+		*count = 0;
+		return DB_FILE_NOT_FOUND;
+	}
+	char line[512];			//한 줄을 저장할 버퍼
+	int idx = 0;			//현재 인덱스
+	while (idx < max && fgets(line, sizeof(line), borrowfp) != NULL)
+	{
+		//줄 끝 제거
+		line[strcspn(line, "\r\n")] = '\0';
+		//파싱
+		char* token;
+		int field = 0;
+		//토큰화
+		token = strtok(line, "|");
+		while (token != NULL)
+		{
+			while (*token == ' ') token++; //앞 공백 제거
+			char* end = token + strlen(token) - 1;
+			while (end > token && (*end == ' ')) { *end = '\0'; end--; } //뒤 공백 제거
+			switch (field)
+			{
+			case 0: //bookID
+				strncpy(borrows[idx].bookID.bookID, token, MAX_BOOK_ID_LENGTH);
+				borrows[idx].bookID.bookID[MAX_BOOK_ID_LENGTH - 1] = '\0';
+				break;
+			case 1: //userID
+				strncpy(borrows[idx].userID.loginID, token, MAX_USER_ID_LENGTH);
+				borrows[idx].userID.loginID[MAX_USER_ID_LENGTH - 1] = '\0';
+				break;
+			case 2: //borrowDate year
+				borrows[idx].borrowDate.year = (uint16_t)atoi(token);
+				break;
+			case 3: //borrowDate month
+				borrows[idx].borrowDate.month = (uint8_t)atoi(token);
+				break;
+			case 4: //borrowDate day
+				borrows[idx].borrowDate.day = (uint8_t)atoi(token);
+				break;
+			case 5: //returnDate year
+				borrows[idx].returnDate.year = (uint16_t)atoi(token);
+				break;
+			case 6: //returnDate month
+				borrows[idx].returnDate.month = (uint8_t)atoi(token);
+				break;
+			case 7: //returnDate day
+				borrows[idx].returnDate.day = (uint8_t)atoi(token);
+				break;
+			case 8: //overdueDay
+				borrows[idx].overdueDay = (uint16_t)atoi(token);
+				break;
+			}
+			field++;
+			token = strtok(NULL, "|");
+		}
+		idx++;
+	}
+	fclose(borrowfp);
+	*count = idx;
+	return DB_SUCCESS;
+}
 
-
-
-
-
-
-
-
-
+/*
+* 함수명 : borrowDataAppend()
+* 기능 : 대여 추가 함수
+* 매개변수 : 없음
+* 반환값 : 정수값
+*/
+DBERROR BorrowDatabaseAppend()
+{
+	FILE* borrowfp = fopen("borrow.txt", "a");
+	if (borrowfp == NULL)
+	{
+		return DB_FILE_NOT_FOUND;
+	}
+	fprintf(borrowfp, "%s|%s|%u|%u|%u|%u|%u|%u|%u\n",
+		borrows->bookID.bookID,
+		borrows->userID.loginID,
+		borrows->borrowDate.year,
+		borrows->borrowDate.month,
+		borrows->borrowDate.day,
+		borrows->returnDate.year,
+		borrows->returnDate.month,
+		borrows->returnDate.day,
+		borrows->overdueDay
+	);
+	fclose(borrowfp);
+	return DB_SUCCESS;
+}
 
 /*
 * 함수명 : countlines()
