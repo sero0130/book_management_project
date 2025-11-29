@@ -24,10 +24,11 @@
 */
 int testlogin(const char* id, const char* pw)
 {
-    int usercount = 0;       // 실제로 로드된 사용자 수
+    int usercount = countlines("user.txt");       // 실제로 로드된 사용자 수
+    int count = 0;
 
     //  user.txt 에서 로그인 정보 로드
-    DBERROR err = UserDatabaseLoad(userCount, &usercount);
+    DBERROR err = UserDatabaseLoad(userCount, &count);
     if (err != DB_SUCCESS || usercount <= 0)
     {
         // 파일이 없거나, 유저 데이터가 없는 경우
@@ -40,8 +41,6 @@ int testlogin(const char* id, const char* pw)
         if (strcmp(id, logins[i].loginID) == 0 &&
             strcmp(pw, logins[i].loginPW) == 0)
         {
-            MoveCursor(31, 24);
-            printf("                                                    ");
             MoveCursor(31, 24);
 
             //  관리자
