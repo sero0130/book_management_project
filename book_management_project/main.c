@@ -13,12 +13,19 @@
 
 int main(void) 
 {
+	int ucount = 0;
+	int bcount = 0;
+	int brcount = 0;
 	//  데이터베이스 초기화 (동적 메모리 할당)
 	InitDatabase();
-	InitConsole("도서관리 프로그램");
+
+	//데이터 로드
+	UserDatabaseLoad(userCount, &ucount);
+	BookDatabaseLoad(bookCount, &bcount);
+	BorrowDatabaseLoad(borrowCount, &brcount);
 	
-	DisplayInProgram();
-	//DisplayMain();
+	
+	DisplayMain();
 
 	//	데이터베이스 해제(동적 메모리 해제)
 	FreeDatabase();

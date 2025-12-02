@@ -17,5 +17,6 @@
 int testlogin(const char* id, const char* pw);
 int signup(const char* id, const char* pw,
     const char* name, const char* phone);
+void DisplayUserListInArea(void);
 
 #endif

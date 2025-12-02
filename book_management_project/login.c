@@ -130,7 +130,7 @@ int signup(const char * id, const char * pw,
         return DB_FILE_NOT_FOUND;
     }
 
-    fprintf(fp, "%d|%s|%s|%s|%s|0|||\n",
+    fprintf(fp, "\n%d|%s|%s|%s|%s|0|||",
         (int)ACCOUNT_TYPE_USER,
         id,
         pw,
@@ -141,4 +141,64 @@ int signup(const char * id, const char * pw,
     fclose(fp);
 
     return DB_SUCCESS;
+}
+
+void DisplayUserListInArea(void)
+{
+    // 영역 정의
+    const int X1 = 22;
+    const int X2 = 96;
+    const int Y1 = 6;
+    const int Y2 = 28;
+
+    int count = 0;
+    DBERROR err = UserDatabaseLoad(userCount, &count);
+    if (err != DB_SUCCESS || count <= 0)
+    {
+        MoveCursor(X1, Y1);
+        printf("User 데이터가 없습니다. (코드: %d)", err);
+        return;
+    }
+
+    // 영역 지우기
+    for (int y = Y1; y <= Y2; y++)
+    {
+        MoveCursor(X1, y);
+        for (int x = X1; x <= X2; x++)
+            printf(" ");
+    }
+
+    // 출력 가능한 최대 줄 수 (헤더 1줄 제외)
+    int maxRows = Y2 - Y1 - 1;
+
+    // 헤더 출력
+    MoveCursor(X1, Y1);
+    printf("ID               %-20s %-15s %-10s %-6s",
+        "이름", "전화번호", "계정타입", "대여수");
+
+    int row = 0;
+
+    for (int i = 0; i < count && row < maxRows; i++, row++)
+    {
+        int y = Y1 + 1 + row;
+
+        const char* type =
+            users[i].accountType == ACCOUNT_TYPE_ADMIN ? "관리자" : "사용자";
+
+        MoveCursor(X1, y);
+        printf("%-16s %-20.20s %-15.15s %-10s %u",
+            logins[i].loginID,
+            users[i].userName,
+            users[i].phoneNum,
+            type,
+            users[i].borrowedBookCount
+        );
+    }
+
+    // 만약 화면을 넘어가면 알려주기
+    if (count > maxRows)
+    {
+        MoveCursor(X1, Y2);
+        printf("※ %d명 중 %d명만 표시됩니다.", count, maxRows);
+    }
 }

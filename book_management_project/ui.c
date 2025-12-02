@@ -123,6 +123,68 @@ void DisplaySignUpScreen(void)
 }
 
 /*
+* 로그인 후 화면 출력 함수
+*/
+
+void DisplayUserScreen(const char * id)
+{
+	ClearConsole();
+
+	//화면 테두리
+	DrawSquare(100, 30, 0, 0);
+
+	DrawSquare(20, 6, 1, 1);
+	MoveCursor(3, 4);
+	printf("사용자 : %s", id);
+
+	DrawSquare(78, 28, 21, 1);
+	DrawSquare(19, 22, 1, 7);
+	MoveCursor(3, 9);
+	printf("대출목록");
+
+	MoveCursor(1, 7);
+	printf("├ ");
+	MoveCursor(21, 7);
+	printf("┤");
+
+	DrawSquare(70, 2, 22, 2);
+	MoveCursor(23, 3);
+	printf("도서 검색 : ");
+	
+	return;
+}
+
+void DisplayAdmin(void)
+{
+	ClearConsole();
+
+	//화면 테두리
+	DrawSquare(100, 30, 0, 0);
+
+	DrawSquare(20, 6, 1, 1);
+	MoveCursor(3, 4);
+	printf("관리자");
+
+	DrawSquare(78, 28, 21, 1);
+	DrawSquare(19, 22, 1, 7);
+	MoveCursor(3, 9);
+	printf("1. 책 추가");
+	MoveCursor(3, 10);
+	printf("2. 책 수정");
+	MoveCursor(3, 11);
+	printf("3. 책 제거");
+	MoveCursor(3, 12);
+	printf("4. 사용자 목록");
+	MoveCursor(3, 13);
+	printf("5. 책 목록");
+
+	MoveCursor(1, 7);
+	printf("├ ");
+	MoveCursor(21, 7);
+	printf("┤");
+}
+
+/*
 * 버튼 화면 출력 함수 (비활성)
 * 매개변수 : int x - 버튼 X 좌표
 * 		     int y - 버튼 Y 좌표

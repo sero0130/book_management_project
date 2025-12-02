@@ -6,6 +6,7 @@
 #include "assistant.h"
 #include "color.h"
 #include "login.h"
+#include "book.h"
 #include <stdio.h>
 #include <conio.h>
 #include <Windows.h>
@@ -86,22 +87,20 @@ void DisplayMain(void)
 				// 로그인 화면으로 이동
 				DisplayLogin();
 				choose++;
-				if (DisplayLogin == NULL)
-				{
-					continue;
-				}
+				
+				break;
 
 			}
 
 
 			case MENU_SIGNUP:
+			{
 				// 회원가입 화면으로 이동
-				DisplaySignUpScreen();
+				MenuSignUp();
 				choose++;
-				if (DisplaySignUpScreen == NULL)
-				{
-					continue;
-				}
+				
+				break;
+			}
 
 
 			case MENU_EXIT:
@@ -141,6 +140,12 @@ void DisplayLogin(void)
 
 		//	커서 보이기
 		Cursor(1);
+		ch = _getch();
+		if(ch == 27)
+		{
+			break;
+		}
+
 
 		//	ID 입력
 		MoveCursor(35 + (int)strlen("ID :"), 18);
@@ -156,6 +161,7 @@ void DisplayLogin(void)
 
 		//	커서 숨기기
 		Cursor(0);
+		
 
 		//	로그인 검사 호출 (login.c의 testlogin 사용)
 		int result = testlogin(buffid, buffpw);
@@ -168,15 +174,17 @@ void DisplayLogin(void)
 			MoveCursor(40, 14);
 			printf("관리자 %s님 환영합니다.\n", buffid);
 			_getch();   //	콘솔에서 관리자 %s님 환영합니다. 읽을 시간 주기
+			AdminMenu();
 
 			//	관리자 / 사용자 메뉴로 분기
 			return;     // 로그인 화면 종료
 		}
 		else if (result == ACCOUNT_TYPE_USER)
 		{
-			_getch();
+			UserMenu(buffid);
 			//	사용자 / 사용자 메뉴로 분기
-			return;
+
+			
 		}
 
 		else if (result == DB_FILE_NOT_FOUND)
@@ -249,6 +257,12 @@ void MenuSignUp(void)
 	while (1)
 	{
 		DisplaySignUpScreen();
+
+		ch = _getch();
+		if (ch == 27)
+		{
+			break;
+		}
 
 		//	커서 보이기
 		Cursor(1);
@@ -333,4 +347,109 @@ void MenuSignUp(void)
 			DisplayExit(0);
 		}
 	}
+}
+
+/*
+* 유저 메뉴	출력 함수
+*/
+
+void UserMenu(const char * id)
+{
+	char strbuff[MAX_BOOK_NAME_LENGTH] = { 0 };
+	int ch;
+	
+	while (1)
+	{
+		DisplayUserScreen(id);
+
+		DisplayBookListInArea();
+
+		//도서 검색
+		MoveCursor(23 + (int)strlen("도서 검색 : "), 3);
+		printf("                              ");	//	기존 입력 지우기
+		MoveCursor(23 + (int)strlen("도서 검색 : "), 3);
+		ch = _getch();
+		if (ch == 13)	//	엔터키
+		{
+			scanf("%79s", strbuff);	//	최대 79글자 (널 제외함 80)
+		}
+		
+		
+		if (ch == 27)
+		{
+			break;
+		}
+
+		SearchBook(strbuff);
+
+		
+	}
+
+}
+
+void AdminMenu(void)
+{
+	int ch;
+
+	while (1)
+	{
+		DisplayAdmin();
+
+		ch = _getch();
+		
+		switch (ch)
+		{
+			case 49:
+			{
+				AddBookInteractive();
+				break;
+			}
+			case 50:
+			{
+				EditBookInteractive();
+				break;
+			}
+			case 51:
+			{
+				RemoveBookInteractive();
+				break;
+			}
+			case 52:
+			{	
+				while (1)
+				{
+					ch = _getch();
+
+					DisplayUserListInArea();
+					if (ch == 27)
+					{
+						break;
+					}
+				}
+				break;
+			}
+			case 53:
+			{
+				while (1)
+				{
+					ch = _getch();
+
+					DisplayBookListInArea();
+					if (ch == 27)
+					{
+						break;
+					}
+				}
+				break;
+			}
+			case 27:
+			{
+				return;
+			}
+			default:
+				break;
+		}
+
+	}
+
 }
