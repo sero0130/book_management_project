@@ -3,6 +3,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <time.h>
 #include <stdbool.h>
 
 /*
@@ -105,7 +106,7 @@ typedef struct borrow {
 	LOGIN userID;																		//사용자 아이디
 	Date borrowDate;																	//책 대여 날짜
 	Date dueDate;																		//책 반납 마감 날짜
-	Date returnDate;																	//책 반납 예정 날짜
+	Date returnDate;																	//책 반납 날짜
 	uint16_t overdueDay;																//반납 시점 기준 계산 결과
 }BORROW;
 

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <Windows.h>
+#include <time.h>
 
 /*
 * 콘솔 화면 지우기 함수
@@ -122,3 +123,58 @@ void Cursor(int n)
 
 	return;
 }
+
+/*
+* 현재 날짜를 넣어주는 공통 함수
+*/
+
+void setToday(Date* d) 
+{
+	time_t t = time(NULL);
+	struct tm* now = localtime(&t);
+
+	d->year = now->tm_year + 1900;
+	d->month = now->tm_mon + 1;
+	d->day = now->tm_mday;
+}
+
+/*
+* 날짜 계산 함수
+*/
+
+int daysInMonth(int year, int month)
+{
+	static int mdays[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+
+	if (month == 2) {
+		// 윤년 계산
+		if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+			return 29;
+	}
+	return mdays[month - 1];
+}
+
+/*
+* 날짜 더하기 함수
+*/
+
+void addDays(Date* d, int days) 
+{
+	d->day += days;
+
+	while (1) {
+		int dim = daysInMonth(d->year, d->month);
+
+		if (d->day > dim) {
+			d->day -= dim;
+			d->month++;
+
+			if (d->month > 12) {
+				d->month = 1;
+				d->year++;
+			}
+		}
+		else break;
+	}
+}
+
