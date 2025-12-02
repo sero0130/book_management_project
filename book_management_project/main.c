@@ -15,8 +15,10 @@ int main(void)
 {
 	//  데이터베이스 초기화 (동적 메모리 할당)
 	InitDatabase();
-
-	DisplayMain();
+	InitConsole("도서관리 프로그램");
+	
+	DisplayInProgram();
+	//DisplayMain();
 
 	//	데이터베이스 해제(동적 메모리 해제)
 	FreeDatabase();

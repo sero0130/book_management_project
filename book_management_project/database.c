@@ -324,7 +324,7 @@ DBERROR BookDatabaseSave(int lastnum)
 
 	for(int i = 0; i <= lastnum; i++)
 	{
-		fprintf(bookfp,"%s|%s|%s|%s|%d|%s\n",
+		fprintf(bookfp,"%s|%s|%s|%s|%s|%d\n",
 			books[i].bookID,
 			books[i].bookName,
 			books[i].writer,
@@ -424,7 +424,7 @@ DBERROR BookDatabaseAppend(int idx)
 		return DB_FILE_NOT_FOUND;
 	}
 
-	fprintf(bookfp, "%s|%s|%s|%s|%d|%s\n",
+	fprintf(bookfp, "%s|%s|%s|%s|%s|%d\n",
 		books[idx].bookID,
 		books[idx].bookName,
 		books[idx].writer,
