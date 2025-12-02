@@ -152,7 +152,7 @@ void DisplayLogin(void)
 		MoveCursor(35 + (int)strlen("PW :"), 21);
 		printf("                              ");
 		MoveCursor(35 + (int)strlen("PW :"), 21);
-		scanf("%29s", buffpw);	// 최대 29글자 (널 포함 30)
+		InputStarPW(buffpw, MAX_USER_PASSWORD_LENGHTH);	// 최대 29글자 (널 포함 30)
 
 		//	커서 숨기기
 		Cursor(0);
@@ -194,7 +194,7 @@ void DisplayLogin(void)
 		{
 			//	로그인 실패
 			wrongcount++;
-			MoveCursor(31, 24);
+			MoveCursor(29, 24);
 			printf("아이디 또는 비밀번호가 잘못되었습니다. (%d/%d)", wrongcount, WRONGCOUNT_FAIL);
 
 			//	일정 횟수 이상 실패 시 종료
@@ -206,7 +206,7 @@ void DisplayLogin(void)
 				DisplayExit(0);
 			}
 
-			MoveCursor(34, 26);
+			MoveCursor(28, 26);
 			printf("다시 시도하려면 아무 키나 누르세요. (ESC: 종료)");
 
 			ch = _getch();
